@@ -1,4 +1,4 @@
-name: Boat
+name: Build
 
 on:
   push:
@@ -7,41 +7,32 @@ on:
 
 jobs:
   build:
-    runs-on: self-hosted
-    strategy:
-      matrix:
-        app: [consumer, producer]
+    runs-on: ubuntu-latest
     env:
-      APP: ${{ matrix.app }}
       REPOSITORY: ${{ github.repository }}
       PACKAGE_REGISTRY: docker.pkg.github.com
-      JAVA_HOME: /opt/java/jdk-12.0.2+10
     steps:
     - uses: actions/checkout@v2
+    - uses: actions/setup-java@v1
       with:
-        clean: false
+        java-version: '12.x'
     - name: create docker tag
       run: |
-        echo ::set-env name=DOCKER_IMAGE::$(echo $PACKAGE_REGISTRY/$REPOSITORY/$APP)
+        echo ::set-env name=DOCKER_IMAGE::$(echo $PACKAGE_REGISTRY/$REPOSITORY/house-gh-webhook)
         echo ::set-env name=DOCKER_TAG::$(echo $GITHUB_SHA | cut -c1-7)
     - name: test and build
       run: |
-        cd $APP
-        ./gradlew test build -PlastHash=$DOCKER_TAG
+        ./gradlew test build
     - name: Build docker image
       run: |
-        cd $APP
         docker build . -t $DOCKER_IMAGE:$DOCKER_TAG
     - name: push docker image
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        cd $APP
         echo "$GITHUB_TOKEN" | docker login --username "$GITHUB_REPOSITORY" --password-stdin https://docker.pkg.github.com
         docker push $DOCKER_IMAGE:$DOCKER_TAG
     - name: Print version
       run: |
-        cd $APP
         echo docker_image: $DOCKER_IMAGE
         echo docker_tag: $DOCKER_TAG
-        echo $APP: $(cat build/version/version)

@@ -1,8 +1,7 @@
-import org.jetbrains.kotlin.gradle.internal.ensureParentDirsCreated
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val junitJupiterVersion = "5.5.2"
-val mainClass = "com.andersostby.consumer.MainKt"
+val mainClass = "com.andersostby.webhook.MainKt"
 
 plugins {
     kotlin("jvm") version "1.3.61"
@@ -42,15 +41,6 @@ tasks {
 
     withType<KotlinCompile> {
         kotlinOptions.jvmTarget = "12"
-
-        doLast {
-            File("$buildDir/version/lastHash")
-                    .apply {
-                        ensureParentDirsCreated()
-                        createNewFile()
-                        writeText("${project.property("lastHash")}")
-                    }
-        }
     }
 
     named<KotlinCompile>("compileTestKotlin") {
