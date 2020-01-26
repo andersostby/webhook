@@ -25,6 +25,7 @@ fun main() {
         routing {
             post("/webhook") {
                 log.info("Mottatt varsel")
+
                 log.info("Headers:\n${call.request.headers.toMap().entries.joinToString("\n")}")
                 log.info("Ny versjon:\n${call.receive<Hook>()}")
                 call.response.status(HttpStatusCode.NoContent)
