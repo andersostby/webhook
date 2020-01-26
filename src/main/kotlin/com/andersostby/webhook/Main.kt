@@ -1,6 +1,9 @@
 package com.andersostby.webhook
 
 import io.ktor.application.call
+import io.ktor.application.install
+import io.ktor.features.ContentNegotiation
+import io.ktor.gson.gson
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
 import io.ktor.routing.post
@@ -16,13 +19,37 @@ fun main() {
     log.info("Starting webhook")
 
     embeddedServer(Netty) {
+        install(ContentNegotiation) {
+            gson {}
+        }
         routing {
             post("/webhook") {
                 log.info("Mottatt varsel")
                 log.info("Headers:\n${call.request.headers.toMap().entries.joinToString("\n")}")
-                log.info("Payload:\n${call.receive<String>()}")
+                log.info("Ny versjon:\n${call.receive<Hook>()}")
                 call.response.status(HttpStatusCode.NoContent)
             }
         }
     }.start()
 }
+
+data class Hook (
+        val `package`: Package
+){
+    override fun toString() =
+            "${`package`.registry.url}/${`package`.name}:${`package`.package_version.version}"
+}
+
+data class Package(
+        val name: String,
+        val package_version: PackageVersion,
+        val registry: Registry
+)
+
+data class PackageVersion(
+        val version: String
+)
+
+data class Registry(
+        val url: String
+)
