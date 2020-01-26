@@ -7,6 +7,7 @@ import io.ktor.routing.post
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import io.ktor.util.toMap
 import org.slf4j.LoggerFactory
 
 private val log = LoggerFactory.getLogger("MainKt")
@@ -18,6 +19,7 @@ fun main() {
         routing {
             post("/webhook") {
                 log.info("Mottatt varsel")
+                log.info("Headers:\n${call.request.headers.toMap().entries.joinToString("\n")}")
                 log.info("Payload:\n${call.receive<String>()}")
                 call.response.status(HttpStatusCode.NoContent)
             }
