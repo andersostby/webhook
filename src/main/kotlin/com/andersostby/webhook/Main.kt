@@ -18,7 +18,6 @@ fun main() {
         routing {
             post("/webhook") {
                 log.info("Mottatt varsel")
-
                 log.info("Payload:\n${call.receive<String>()}")
                 call.response.status(HttpStatusCode.NoContent)
             }
