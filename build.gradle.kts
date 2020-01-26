@@ -1,5 +1,6 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+val ktorVersion = "1.3.0"
 val junitJupiterVersion = "5.5.2"
 val mainClass = "com.andersostby.webhook.MainKt"
 
@@ -16,6 +17,9 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation("org.slf4j:slf4j-api:1.7.26")
     implementation("ch.qos.logback:logback-classic:1.2.3")
+
+    implementation("io.ktor:ktor-server-core:$ktorVersion")
+    implementation("io.ktor:ktor-server-netty:$ktorVersion")
 
     implementation("com.rabbitmq:amqp-client:5.7.1")
 
