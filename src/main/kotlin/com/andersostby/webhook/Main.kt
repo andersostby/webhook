@@ -6,6 +6,7 @@ import io.ktor.features.ContentNegotiation
 import io.ktor.gson.gson
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
+import io.ktor.request.receiveText
 import io.ktor.routing.post
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
@@ -27,7 +28,8 @@ fun main() {
                 log.info("Mottatt varsel")
 
                 log.info("Headers:\n${call.request.headers.toMap().entries.joinToString("\n")}")
-                log.info("Ny versjon:\n${call.receive<Hook>()}")
+                //log.info("Ny versjon:\n${call.receive<Hook>()}")
+                log.info("Ny versjon:\n${call.receiveText()}")
                 call.response.status(HttpStatusCode.NoContent)
             }
         }
