@@ -1,8 +1,18 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+val gradleVersion = "6.1"
+val javaVersion = JavaVersion.VERSION_12
+
+val slf4jVersion = "1.7.30"
+val logbackVersion = "1.2.3"
 val ktorVersion = "1.3.0"
-val jacksonVersion = "2.10.0"
-val junitJupiterVersion = "5.5.2"
+val jacksonVersion = "2.10.2"
+val rabbitmqVersion = "5.8.0"
+
+val assertjVersion = "3.15.0"
+val mockkVersion = "1.9.3"
+val junitJupiterVersion = "5.6.0"
+
 val mainClass = "com.andersostby.webhook.MainKt"
 
 plugins {
@@ -16,8 +26,8 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
-    implementation("org.slf4j:slf4j-api:1.7.26")
-    implementation("ch.qos.logback:logback-classic:1.2.3")
+    implementation("org.slf4j:slf4j-api:$slf4jVersion")
+    implementation("ch.qos.logback:logback-classic:$logbackVersion")
 
     implementation("io.ktor:ktor-server-core:$ktorVersion")
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
@@ -25,10 +35,10 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
 
-    implementation("com.rabbitmq:amqp-client:5.7.1")
+    implementation("com.rabbitmq:amqp-client:$rabbitmqVersion")
 
-    testImplementation("org.assertj:assertj-core:3.12.2")
-    testImplementation("io.mockk:mockk:1.9.3")
+    testImplementation("org.assertj:assertj-core:$assertjVersion")
+    testImplementation("io.mockk:mockk:$mockkVersion")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion")
@@ -46,15 +56,15 @@ tasks {
     }
 
     withType<Wrapper> {
-        gradleVersion = "6.1"
+        gradleVersion = gradleVersion
     }
 
     withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = "12"
+        kotlinOptions.jvmTarget = javaVersion.toString()
     }
 
     named<KotlinCompile>("compileTestKotlin") {
-        kotlinOptions.jvmTarget = "12"
+        kotlinOptions.jvmTarget = javaVersion.toString()
     }
 
     named<Jar>("jar") {
@@ -78,6 +88,6 @@ tasks {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_12
-    targetCompatibility = JavaVersion.VERSION_12
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
 }
