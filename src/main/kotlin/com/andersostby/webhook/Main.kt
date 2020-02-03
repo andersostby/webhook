@@ -11,14 +11,25 @@ fun main() {
     log.info("Starting webhook")
 
     val webhook = Webhook()
+    val rabbitMQProducer = RabbitMQProducer(
+            username = "test",
+            password = "test",
+            host = "192.168.1.40"
+    )
 
     webhook.addListener(testListener)
+    webhook.addListener(rabbitMQProducer::send)
 
-    embeddedServer(Netty) {
+    val server = embeddedServer(Netty) {
         routing {
             webhook.apply { webhook() }
         }
     }.start()
+
+    Runtime.getRuntime().addShutdownHook(Thread {
+        server.stop(10, 10)
+        rabbitMQProducer.close()
+    })
 }
 
 private val testListener: WebhookListener

@@ -28,7 +28,7 @@ dependencies {
     implementation("com.rabbitmq:amqp-client:5.7.1")
 
     testImplementation("org.assertj:assertj-core:3.12.2")
-    testImplementation("io.mockk:mockk:1.9")
+    testImplementation("io.mockk:mockk:1.9.3")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion")
