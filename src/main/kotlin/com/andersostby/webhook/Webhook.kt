@@ -69,7 +69,7 @@ internal class Webhook {
 
             listeners.forEach { it(dockerTag) }
 
-            call.response.status(HttpStatusCode.NoContent)
+            call.response.status(HttpStatusCode.OK)
         }
     }
 }

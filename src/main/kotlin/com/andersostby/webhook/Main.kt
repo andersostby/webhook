@@ -22,6 +22,7 @@ fun main() {
 
     val server = embeddedServer(Netty) {
         routing {
+            healthCheck()
             webhook.apply { webhook() }
         }
     }.start()

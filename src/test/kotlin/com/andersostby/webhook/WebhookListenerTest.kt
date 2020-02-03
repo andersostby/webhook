@@ -40,7 +40,7 @@ internal class WebhookListenerTest {
                 responseStatus = response.status()
             }
 
-            assertEquals(HttpStatusCode.NoContent, responseStatus)
+            assertEquals(HttpStatusCode.OK, responseStatus)
             assertEquals("docker.pkg.github.com/andersostby/house-gh-webhook/house-gh-webhook:453b786", resultPayload)
         }
     }
