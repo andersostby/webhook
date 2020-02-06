@@ -1,7 +1,6 @@
 package com.andersostby.webhook
 
 import com.andersostby.webhook.crypto.Hmac
-import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.application.ApplicationCallPipeline
 import io.ktor.application.call
@@ -16,10 +15,11 @@ import org.slf4j.LoggerFactory
 
 private val log = LoggerFactory.getLogger("Webhook")
 
-internal typealias WebhookListener = (String) -> Unit
+internal typealias WebhookListener = (message: String) -> Unit
 
 internal class Webhook {
     private val listeners = mutableListOf<WebhookListener>()
+    private val objectMapper = jacksonObjectMapper()
 
     internal fun addListener(listener: WebhookListener) {
         listeners.add(listener)
@@ -58,18 +58,24 @@ internal class Webhook {
             }
             post {
                 log.info("Mottatt varsel")
-                val hook = jacksonObjectMapper()
-                        .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                        .readTree(call.attributes[bodyKey])
+                val hook = objectMapper.readTree(call.attributes[bodyKey])
 
-                val dockerTag = hook.requiredAt("/package/registry/url").textValue()
-                        .replace("^https?://(.+)".toRegex()) { it.groupValues[1] } + "/" +
-                        hook.requiredAt("/package/name").textValue() + ":" +
-                        hook.requiredAt("/package/package_version/version").textValue()
+                val registry = hook.requiredAt("/package/registry/url").textValue()
+                val app = hook.requiredAt("/package/name").textValue()
+                val version = hook.requiredAt("/package/package_version/version").textValue()
+                val partialTag = registry.replace("^https?://(.+)".toRegex()) { it.groupValues[1] }
+                val tag = "$partialTag/$app:$version"
 
-                log.info("Ny versjon: $dockerTag")
+                val json = objectMapper.writeValueAsString(mapOf(
+                        "registry" to registry,
+                        "app" to app,
+                        "version" to version,
+                        "tag" to tag
+                ))
 
-                listeners.forEach { it(dockerTag) }
+                log.info("Ny versjon: $json")
+
+                listeners.forEach { it(json) }
 
                 call.response.status(HttpStatusCode.OK)
             }

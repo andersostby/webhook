@@ -41,7 +41,7 @@ internal class WebhookListenerTest {
             }
 
             assertEquals(HttpStatusCode.OK, responseStatus)
-            assertEquals("docker.pkg.github.com/andersostby/house-gh-webhook/house-gh-webhook:453b786", resultPayload)
+            assertEquals("{\"registry\":\"https://docker.pkg.github.com/andersostby/house-gh-webhook\",\"app\":\"house-gh-webhook\",\"version\":\"453b786\",\"tag\":\"docker.pkg.github.com/andersostby/house-gh-webhook/house-gh-webhook:453b786\"}", resultPayload)
         }
     }
 
