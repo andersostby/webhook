@@ -14,7 +14,7 @@ fun main() {
     val rabbitMQProducer = RabbitMQProducer(
             username = "test",
             password = "test",
-            host = "192.168.1.40"
+            host = "husetmq"
     )
 
     webhook.addListener(testListener)
