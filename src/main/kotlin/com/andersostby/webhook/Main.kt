@@ -9,7 +9,6 @@ private val log = LoggerFactory.getLogger("MainKt")
 
 fun main() {
     log.info("Starting webhook")
-
     val webhook = Webhook()
     val rabbitMQProducer = RabbitMQProducer(
             username = "test",
