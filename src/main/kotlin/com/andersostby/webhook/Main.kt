@@ -10,7 +10,7 @@ private val log = LoggerFactory.getLogger("MainKt")
 fun main() {
     log.info("Starting webhook")
 
-    val environment = Environment("env.json")
+    val environment = Environment()
 
     val webhook = Webhook(secret = environment.secret)
     val rabbitMQProducer = RabbitMQProducer(rabbitmq = environment.rabbitmq)
