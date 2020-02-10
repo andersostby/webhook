@@ -24,7 +24,7 @@ internal class WebhookListenerTest {
 
     @Test
     internal fun `Listener blir kalt med nytt event når webhook trigges med gydlig signatur`() {
-        val webhook = Webhook()
+        val webhook = Webhook("Hemmelig")
         withTestApplication({
             routing {
                 webhook.apply { webhook() }
@@ -47,7 +47,7 @@ internal class WebhookListenerTest {
 
     @Test
     internal fun `Listener blir ikke kalt med nytt event når webhook trigges med ugydlig signatur - gir 401`() {
-        val webhook = Webhook()
+        val webhook = Webhook("Hemmelig")
         withTestApplication({
             routing {
                 webhook.apply { webhook() }
@@ -70,7 +70,7 @@ internal class WebhookListenerTest {
 
     @Test
     internal fun `Listener blir ikke kalt med nytt event når webhook trigges med for kort signatur - gir 401`() {
-        val webhook = Webhook()
+        val webhook = Webhook("Hemmelig")
         withTestApplication({
             routing {
                 webhook.apply { webhook() }
@@ -93,7 +93,7 @@ internal class WebhookListenerTest {
 
     @Test
     internal fun `Listener blir ikke kalt med nytt event når webhook trigges uten signatur - gir 400`() {
-        val webhook = Webhook()
+        val webhook = Webhook("Hemmelig")
         withTestApplication({
             routing {
                 webhook.apply { webhook() }

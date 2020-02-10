@@ -17,7 +17,7 @@ private val log = LoggerFactory.getLogger("Webhook")
 
 internal typealias WebhookListener = (message: String) -> Unit
 
-internal class Webhook {
+internal class Webhook(private val secret: String) {
     private val listeners = mutableListOf<WebhookListener>()
     private val objectMapper = jacksonObjectMapper()
 
@@ -42,7 +42,7 @@ internal class Webhook {
             intercept(ApplicationCallPipeline.Features) {
                 try {
                     Hmac(
-                            secret = "Hemmelig",
+                            secret = secret,
                             signature = call.attributes[signatureKey],
                             payload = call.attributes[bodyKey]
                     ).verify()

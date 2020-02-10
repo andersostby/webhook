@@ -9,12 +9,12 @@ import java.io.Closeable
 private val log = LoggerFactory.getLogger("RabbitMQProducer")
 
 internal class RabbitMQProducer(connectionFactory: ConnectionFactory) : Closeable {
-    constructor(username: String, password: String, host: String, port: Int = ConnectionFactory.USE_DEFAULT_PORT) :
+    constructor(rabbitmq: Environment.Rabbitmq) :
             this(ConnectionFactory().apply {
-                this.username = username
-                this.password = password
-                this.host = host
-                this.port = port
+                this.username = rabbitmq.username
+                this.password = rabbitmq.password
+                this.host = rabbitmq.host
+                this.port = ConnectionFactory.USE_DEFAULT_PORT
             })
 
     private val connection: Connection =
