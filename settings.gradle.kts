@@ -1,1 +1,1 @@
-rootProject.name = "house-gh-webhook"
+rootProject.name = "webhook"
