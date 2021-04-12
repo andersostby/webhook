@@ -18,8 +18,8 @@ jobs:
         java-version: '12.x'
     - name: create docker tag
       run: |
-        echo ::set-env name=DOCKER_IMAGE::$(echo $PACKAGE_REGISTRY/$REPOSITORY/webhook)
-        echo ::set-env name=DOCKER_TAG::$(echo $GITHUB_SHA | cut -c1-7)
+        echo "DOCKER_IMAGE=$(echo $PACKAGE_REGISTRY/$REPOSITORY/webhook)" >> $GITHUB_ENV
+        echo "DOCKER_TAG=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
     - name: test and build
       run: |
         ./gradlew test build
