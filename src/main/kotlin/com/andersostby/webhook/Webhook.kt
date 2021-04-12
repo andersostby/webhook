@@ -2,15 +2,11 @@ package com.andersostby.webhook
 
 import com.andersostby.webhook.crypto.Hmac
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import io.ktor.application.ApplicationCallPipeline
-import io.ktor.application.call
-import io.ktor.http.HttpStatusCode
-import io.ktor.request.header
-import io.ktor.request.receiveText
-import io.ktor.routing.Route
-import io.ktor.routing.post
-import io.ktor.routing.route
-import io.ktor.util.AttributeKey
+import io.ktor.application.*
+import io.ktor.http.*
+import io.ktor.request.*
+import io.ktor.routing.*
+import io.ktor.util.*
 import org.slf4j.LoggerFactory
 
 private val log = LoggerFactory.getLogger("Webhook")
@@ -42,9 +38,9 @@ internal class Webhook(private val secret: String) {
             intercept(ApplicationCallPipeline.Features) {
                 try {
                     Hmac(
-                            secret = secret,
-                            signature = call.attributes[signatureKey],
-                            payload = call.attributes[bodyKey]
+                        secret = secret,
+                        signature = call.attributes[signatureKey],
+                        payload = call.attributes[bodyKey]
                     ).verify()
                 } catch (e: IllegalArgumentException) {
                     call.response.status(HttpStatusCode.Unauthorized)
@@ -66,12 +62,14 @@ internal class Webhook(private val secret: String) {
                 val partialTag = registry.replace("^https?://(.+)".toRegex()) { it.groupValues[1] }
                 val tag = "$partialTag/$app:$version"
 
-                val json = objectMapper.writeValueAsString(mapOf(
+                val json = objectMapper.writeValueAsString(
+                    mapOf(
                         "registry" to registry,
                         "app" to app,
                         "version" to version,
                         "tag" to tag
-                ))
+                    )
+                )
 
                 log.info("Ny versjon: $json")
 

@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-val gradleVersion = "6.1"
-val javaVersion = JavaVersion.VERSION_12
+val gradleVersion = "6.8.3"
+val javaVersion = JavaVersion.VERSION_15
 
 val slf4jVersion = "1.7.30"
 val logbackVersion = "1.2.3"
@@ -16,7 +16,7 @@ val junitJupiterVersion = "5.6.0"
 val mainClass = "com.andersostby.webhook.MainKt"
 
 plugins {
-    kotlin("jvm") version "1.3.61"
+    kotlin("jvm") version "1.4.32"
 }
 
 repositories {
@@ -25,7 +25,6 @@ repositories {
 }
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8"))
     implementation("org.slf4j:slf4j-api:$slf4jVersion")
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
 
