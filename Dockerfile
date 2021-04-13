@@ -1,4 +1,4 @@
-FROM adoptopenjdk:12-jdk-hotspot-bionic
+FROM adoptopenjdk:15-jdk-hotspot-bionic
 
 RUN mkdir /app
 
