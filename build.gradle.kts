@@ -5,13 +5,13 @@ val javaVersion = JavaVersion.VERSION_15
 
 val slf4jVersion = "1.7.30"
 val logbackVersion = "1.2.3"
-val ktorVersion = "1.3.0"
-val jacksonVersion = "2.10.2"
-val rabbitmqVersion = "5.8.0"
+val ktorVersion = "1.5.3"
+val jacksonVersion = "2.12.3"
+val rabbitmqVersion = "5.12.0"
 
-val assertjVersion = "3.15.0"
-val mockkVersion = "1.9.3"
-val junitJupiterVersion = "5.6.0"
+val assertjVersion = "3.19.0"
+val mockkVersion = "1.11.0"
+val junitJupiterVersion = "5.7.1"
 
 val mainClass = "com.andersostby.webhook.MainKt"
 
