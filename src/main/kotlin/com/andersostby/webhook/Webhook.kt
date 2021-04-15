@@ -58,6 +58,9 @@ internal class Webhook(private val secret: String) {
             header("X-GitHub-Event", "package") {
                 post { handlePackage() }
             }
+            header("X-GitHub-Event", "create") {
+                post { handleTag() }
+            }
             post {
                 log.info("Mottatt ukjent hook")
                 call.response.status(HttpStatusCode.Accepted)
@@ -65,7 +68,7 @@ internal class Webhook(private val secret: String) {
         }
     }
 
-    private fun PipelineContext<Unit, ApplicationCall>.handlePackage(): Unit {
+    private fun PipelineContext<Unit, ApplicationCall>.handlePackage() {
         log.info("Mottatt package hook")
         val hook = objectMapper.readTree(call.attributes[bodyKey])
 
@@ -78,6 +81,39 @@ internal class Webhook(private val secret: String) {
         val json = objectMapper.writeValueAsString(
             mapOf(
                 "registry" to registry,
+                "app" to app,
+                "version" to version,
+                "tag" to tag
+            )
+        )
+
+        log.info("Ny versjon: $json")
+
+        listeners.forEach { it(json) }
+
+        call.response.status(HttpStatusCode.OK)
+    }
+
+    private fun PipelineContext<Unit, ApplicationCall>.handleTag() {
+        log.info("Mottatt create hook")
+        val hook = objectMapper.readTree(call.attributes[bodyKey])
+        if (hook.requiredAt("/ref_type").textValue() != "tag") {
+            log.info("ref_type er ikke \"tag\"")
+            return call.response.status(HttpStatusCode.Accepted)
+        }
+
+        val ref = hook.requiredAt("/ref").textValue()
+        val app = ref.takeWhile { it != '-' }
+        if(app !in arrayOf("deployer")){
+            log.info("Ukjent app. Deployer ikke")
+            return call.response.status(HttpStatusCode.Accepted)
+        }
+        val version = ref.takeLastWhile { it != '-' }
+        val partialTag = "ghcr.io/andersostby"
+        val tag = "$partialTag/$app:$version"
+
+        val json = objectMapper.writeValueAsString(
+            mapOf(
                 "app" to app,
                 "version" to version,
                 "tag" to tag
