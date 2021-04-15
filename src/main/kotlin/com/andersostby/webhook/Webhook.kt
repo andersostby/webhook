@@ -58,10 +58,10 @@ internal class Webhook(private val secret: String) {
             header("X-GitHub-Event", "package") {
                 post { handlePackage() }
             }
-        }
-        post {
-            log.info("Mottatt ukjent hook")
-            call.response.status(HttpStatusCode.Accepted)
+            post {
+                log.info("Mottatt ukjent hook")
+                call.response.status(HttpStatusCode.Accepted)
+            }
         }
     }
 
