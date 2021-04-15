@@ -1,17 +1,16 @@
 package com.andersostby.webhook
 
-import io.ktor.http.HttpMethod
-import io.ktor.http.HttpStatusCode
-import io.ktor.routing.routing
-import io.ktor.server.testing.setBody
-import io.ktor.server.testing.withTestApplication
+import io.ktor.http.*
+import io.ktor.routing.*
+import io.ktor.server.testing.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 internal class WebhookListenerTest {
-    private val body = "{\"package\":{\"name\":\"house-gh-webhook\",\"package_version\":{\"version\":\"453b786\"},\"registry\":{\"url\":\"https://docker.pkg.github.com/andersostby/house-gh-webhook\"}}}"
+    private val body =
+        "{\"package\":{\"name\":\"house-gh-webhook\",\"package_version\":{\"version\":\"453b786\"},\"registry\":{\"url\":\"https://docker.pkg.github.com/andersostby/house-gh-webhook\"}}}"
 
     private var resultPayload: String? = null
     private var responseStatus: HttpStatusCode? = null
@@ -34,6 +33,7 @@ internal class WebhookListenerTest {
             with(handleRequest {
                 method = HttpMethod.Post
                 uri = "/webhook"
+                addHeader("X-GitHub-Event", "package")
                 addHeader("X-Hub-Signature", "15fbdf5752e486f745c2dc5ee8c4774e86f8cc2d")
                 setBody(body)
             }) {
@@ -41,7 +41,10 @@ internal class WebhookListenerTest {
             }
 
             assertEquals(HttpStatusCode.OK, responseStatus)
-            assertEquals("{\"registry\":\"https://docker.pkg.github.com/andersostby/house-gh-webhook\",\"app\":\"house-gh-webhook\",\"version\":\"453b786\",\"tag\":\"docker.pkg.github.com/andersostby/house-gh-webhook/house-gh-webhook:453b786\"}", resultPayload)
+            assertEquals(
+                "{\"registry\":\"https://docker.pkg.github.com/andersostby/house-gh-webhook\",\"app\":\"house-gh-webhook\",\"version\":\"453b786\",\"tag\":\"docker.pkg.github.com/andersostby/house-gh-webhook/house-gh-webhook:453b786\"}",
+                resultPayload
+            )
         }
     }
 
@@ -57,6 +60,7 @@ internal class WebhookListenerTest {
             with(handleRequest {
                 method = HttpMethod.Post
                 uri = "/webhook"
+                addHeader("X-GitHub-Event", "package")
                 addHeader("X-Hub-Signature", "15fbdf5752e486f745c2dc5ee8c4774e86f8cc2e")
                 setBody(body)
             }) {
@@ -80,6 +84,7 @@ internal class WebhookListenerTest {
             with(handleRequest {
                 method = HttpMethod.Post
                 uri = "/webhook"
+                addHeader("X-GitHub-Event", "package")
                 addHeader("X-Hub-Signature", "15fbdf5752e486f745c2dc5ee8c4774e86f8cc2")
                 setBody(body)
             }) {
@@ -103,12 +108,37 @@ internal class WebhookListenerTest {
             with(handleRequest {
                 method = HttpMethod.Post
                 uri = "/webhook"
+                addHeader("X-GitHub-Event", "package")
                 setBody(body)
             }) {
                 responseStatus = response.status()
             }
 
             assertEquals(HttpStatusCode.BadRequest, responseStatus)
+            assertNull(resultPayload)
+        }
+    }
+
+    @Test
+    internal fun `Returnerer Accepted når webhook trigges med gydlig signatur og ukjent X-GitHub-Event`() {
+        val webhook = Webhook("Hemmelig")
+        withTestApplication({
+            routing {
+                webhook.apply { webhook() }
+            }
+        }) {
+            webhook.addListener { resultPayload = it }
+            with(handleRequest {
+                method = HttpMethod.Post
+                uri = "/webhook"
+                addHeader("X-GitHub-Event", "registry_package")
+                addHeader("X-Hub-Signature", "15fbdf5752e486f745c2dc5ee8c4774e86f8cc2d")
+                setBody(body)
+            }) {
+                responseStatus = response.status()
+            }
+
+            assertEquals(HttpStatusCode.Accepted, responseStatus)
             assertNull(resultPayload)
         }
     }

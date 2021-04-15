@@ -7,6 +7,7 @@ import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.routing.*
 import io.ktor.util.*
+import io.ktor.util.pipeline.*
 import org.slf4j.LoggerFactory
 
 private val log = LoggerFactory.getLogger("Webhook")
@@ -14,17 +15,19 @@ private val log = LoggerFactory.getLogger("Webhook")
 internal typealias WebhookListener = (message: String) -> Unit
 
 internal class Webhook(private val secret: String) {
-    private val listeners = mutableListOf<WebhookListener>()
-    private val objectMapper = jacksonObjectMapper()
+    companion object {
+        private val objectMapper = jacksonObjectMapper()
+        private val signatureKey = AttributeKey<String>("signature")
+        private val bodyKey = AttributeKey<String>("body")
+    }
 
+    private val listeners = mutableListOf<WebhookListener>()
     internal fun addListener(listener: WebhookListener) {
         listeners.add(listener)
     }
 
     internal fun Route.webhook() {
         route("/webhook") {
-            val signatureKey = AttributeKey<String>("signature")
-            val bodyKey = AttributeKey<String>("body")
             intercept(ApplicationCallPipeline.Setup) {
                 val signature = call.request.header("X-Hub-Signature") ?: run {
                     call.response.status(HttpStatusCode.BadRequest)
@@ -52,31 +55,39 @@ internal class Webhook(private val secret: String) {
                     return@intercept
                 }
             }
-            post {
-                log.info("Mottatt varsel")
-                val hook = objectMapper.readTree(call.attributes[bodyKey])
-
-                val registry = hook.requiredAt("/package/registry/url").textValue()
-                val app = hook.requiredAt("/package/name").textValue()
-                val version = hook.requiredAt("/package/package_version/version").textValue()
-                val partialTag = registry.replace("^https?://(.+)".toRegex()) { it.groupValues[1] }
-                val tag = "$partialTag/$app:$version"
-
-                val json = objectMapper.writeValueAsString(
-                    mapOf(
-                        "registry" to registry,
-                        "app" to app,
-                        "version" to version,
-                        "tag" to tag
-                    )
-                )
-
-                log.info("Ny versjon: $json")
-
-                listeners.forEach { it(json) }
-
-                call.response.status(HttpStatusCode.OK)
+            header("X-GitHub-Event", "package") {
+                post { handlePackage() }
             }
         }
+        post {
+            log.info("Mottatt ukjent hook")
+            call.response.status(HttpStatusCode.Accepted)
+        }
+    }
+
+    private fun PipelineContext<Unit, ApplicationCall>.handlePackage(): Unit {
+        log.info("Mottatt package hook")
+        val hook = objectMapper.readTree(call.attributes[bodyKey])
+
+        val registry = hook.requiredAt("/package/registry/url").textValue()
+        val app = hook.requiredAt("/package/name").textValue()
+        val version = hook.requiredAt("/package/package_version/version").textValue()
+        val partialTag = registry.replace("^https?://(.+)".toRegex()) { it.groupValues[1] }
+        val tag = "$partialTag/$app:$version"
+
+        val json = objectMapper.writeValueAsString(
+            mapOf(
+                "registry" to registry,
+                "app" to app,
+                "version" to version,
+                "tag" to tag
+            )
+        )
+
+        log.info("Ny versjon: $json")
+
+        listeners.forEach { it(json) }
+
+        call.response.status(HttpStatusCode.OK)
     }
 }
