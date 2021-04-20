@@ -37,10 +37,10 @@ internal class RabbitMQProducer(connectionFactory: ConnectionFactory) : Closeabl
         send(message.toByteArray())
     }
 
-    internal fun send(message: ByteArray) {
+    private fun send(message: ByteArray) {
         log.info("Sender melding til rapid")
         try {
-            channel.basicPublish("rapid", "", null, message)
+            channel.basicPublish("rapid", "app.new", null, message)
         } catch (e: Exception) {
             log.error("Kunne ikke sende melding til rapid", e)
             throw e
