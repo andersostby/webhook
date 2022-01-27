@@ -1,4 +1,4 @@
-FROM adoptopenjdk:15-jdk-hotspot-bionic
+FROM eclipse-temurin:17-jdk-alpine
 
 RUN mkdir /app
 
