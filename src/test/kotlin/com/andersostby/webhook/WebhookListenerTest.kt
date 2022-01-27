@@ -3,14 +3,14 @@ package com.andersostby.webhook
 import io.ktor.http.*
 import io.ktor.routing.*
 import io.ktor.server.testing.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNull
 
 internal class WebhookListenerTest {
     private val body =
-        """{"package":{"name":"house-gh-webhook","package_version":{"version":"453b786"},"registry":{"url":"https://docker.pkg.github.com/andersostby/house-gh-webhook"}}}"""
+        """{"package":{"package_version":{"package_url":"ghcr.io/andersostby/webhook/webhook:9921bc9"}}}"""
     private val tagBody =
         """{"ref": "deployer-525eda2","ref_type": "tag"}"""
 
@@ -36,7 +36,7 @@ internal class WebhookListenerTest {
                 method = HttpMethod.Post
                 uri = "/webhook"
                 addHeader("X-GitHub-Event", "package")
-                addHeader("X-Hub-Signature", "15fbdf5752e486f745c2dc5ee8c4774e86f8cc2d")
+                addHeader("X-Hub-Signature", "8c4a5cfccbde734da42d755fe46b8acdcc8e447c")
                 setBody(body)
             }) {
                 responseStatus = response.status()
@@ -44,7 +44,7 @@ internal class WebhookListenerTest {
 
             assertEquals(HttpStatusCode.OK, responseStatus)
             assertEquals(
-                """{"registry":"https://docker.pkg.github.com/andersostby/house-gh-webhook","app":"house-gh-webhook","version":"453b786","tag":"docker.pkg.github.com/andersostby/house-gh-webhook/house-gh-webhook:453b786"}""",
+                """{"app":"webhook","version":"9921bc9","tag":"ghcr.io/andersostby/webhook/webhook:9921bc9"}""",
                 resultPayload
             )
         }
@@ -134,7 +134,7 @@ internal class WebhookListenerTest {
                 method = HttpMethod.Post
                 uri = "/webhook"
                 addHeader("X-GitHub-Event", "registry_package")
-                addHeader("X-Hub-Signature", "15fbdf5752e486f745c2dc5ee8c4774e86f8cc2d")
+                addHeader("X-Hub-Signature", "8c4a5cfccbde734da42d755fe46b8acdcc8e447c")
                 setBody(body)
             }) {
                 responseStatus = response.status()

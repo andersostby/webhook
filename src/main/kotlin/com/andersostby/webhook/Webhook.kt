@@ -72,15 +72,14 @@ internal class Webhook(private val secret: String) {
         log.info("Mottatt package hook")
         val hook = objectMapper.readTree(call.attributes[bodyKey])
 
-        val registry = hook.requiredAt("/package/registry/url").textValue()
-        val app = hook.requiredAt("/package/name").textValue()
-        val version = hook.requiredAt("/package/package_version/version").textValue()
-        val partialTag = registry.replace("^https?://(.+)".toRegex()) { it.groupValues[1] }
-        val tag = "$partialTag/$app:$version"
+        val tag = hook.requiredAt("/package/package_version/package_url").textValue()
+        val result = tag.takeLastWhile { it != '/' }.split(':')
+
+        val app = result[0]
+        val version = result[1]
 
         val json = objectMapper.writeValueAsString(
             mapOf(
-                "registry" to registry,
                 "app" to app,
                 "version" to version,
                 "tag" to tag
