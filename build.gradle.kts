@@ -1,27 +1,26 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-val gradleVersion = "6.8.3"
-val javaVersion = JavaVersion.VERSION_15
+val gradleVersion = "7.3.3"
+val javaVersion = JavaVersion.VERSION_17
 
-val slf4jVersion = "1.7.30"
-val logbackVersion = "1.2.3"
-val ktorVersion = "1.5.3"
-val jacksonVersion = "2.12.3"
-val rabbitmqVersion = "5.12.0"
+val slf4jVersion = "1.7.35"
+val logbackVersion = "1.2.10"
+val ktorVersion = "1.6.7"
+val jacksonVersion = "2.13.1"
+val rabbitmqVersion = "5.14.1"
 
-val assertjVersion = "3.19.0"
-val mockkVersion = "1.11.0"
-val junitJupiterVersion = "5.7.1"
+val assertjVersion = "3.22.0"
+val mockkVersion = "1.12.2"
+val junitJupiterVersion = "5.8.2"
 
 val mainClass = "com.andersostby.webhook.MainKt"
 
 plugins {
-    kotlin("jvm") version "1.4.32"
+    kotlin("jvm") version "1.6.10"
 }
 
 repositories {
     mavenCentral()
-    jcenter()
 }
 
 dependencies {
