@@ -28,5 +28,5 @@ jobs:
         docker build . -t $DOCKER_IMAGE:$DOCKER_TAG
     - name: push docker image
       run: |
-        echo "${{ secrets.GITHUB_TOKEN }}" | docker login --username "$GITHUB_REPOSITORY" --password-stdin https://docker.pkg.github.com
+        echo "${{ secrets.GITHUB_TOKEN }}" | docker login --username "$GITHUB_REPOSITORY" --password-stdin https://$PACKAGE_REGISTRY
         docker push $DOCKER_IMAGE:$DOCKER_TAG
